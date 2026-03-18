@@ -61,14 +61,7 @@ public class EmployeesController(
 
         var employee = Mapper.ToEmployee(request, role);
 
-        try
-        {
-            await employeeRepository.Add(employee, ct);
-        }
-        catch (SystemException x)
-        {
-            return BadRequest(new ProblemDetails { Title = x.Message });
-        }
+        await employeeRepository.Add(employee, ct);
 
         var response = Mapper.ToEmployeeResponse(employee);
 
@@ -96,7 +89,7 @@ public class EmployeesController(
 
         var role = await roleRepository.GetById(request.RoleId, ct);
         if (role == null)
-            return RoleNotFound(request.RoleId);
+            return BadRequest(request.RoleId);
 
         employee.FirstName = request.FirstName;
         employee.LastName = request.LastName;
