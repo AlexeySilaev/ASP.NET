@@ -70,4 +70,9 @@ public class PromoCodeFactoryDbContext : DbContext
             entity.Property(e => e.Name).HasMaxLength(100);
         });
     }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        base.OnConfiguring(optionsBuilder);
+    }
 }
