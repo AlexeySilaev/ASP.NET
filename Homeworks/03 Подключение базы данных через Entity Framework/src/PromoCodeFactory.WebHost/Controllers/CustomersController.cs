@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using PromoCodeFactory.Core.Domain.PromoCodeManagement;
+using PromoCodeFactory.WebHost.Mapping;
 using PromoCodeFactory.WebHost.Models.Customers;
 
 namespace PromoCodeFactory.WebHost.Controllers;
@@ -6,7 +8,8 @@ namespace PromoCodeFactory.WebHost.Controllers;
 /// <summary>
 /// Клиенты
 /// </summary>
-public class CustomersController : BaseController
+public class CustomersController(IRepository<Customer> customerRepository, IRepository<Preference> preferenceRepository,
+    IRepository<PromoCode> promoCodeRepository) : BaseController
 {
     /// <summary>
     /// Получить данные всех клиентов
@@ -15,7 +18,11 @@ public class CustomersController : BaseController
     [ProducesResponseType(typeof(IEnumerable<CustomerShortResponse>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<CustomerShortResponse>>> Get(CancellationToken ct)
     {
-        throw new NotImplementedException();
+        var customers = await customerRepository.GetAll(ct: ct);
+
+        var customersModels = customers.Select(c => CustomersMapper.ToCustomerShortResponse(c)).ToList();
+
+        return Ok(customersModels);
     }
 
     /// <summary>
@@ -26,7 +33,13 @@ public class CustomersController : BaseController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<CustomerResponse>> GetById(Guid id, CancellationToken ct)
     {
-        throw new NotImplementedException();
+        var customer = await customerRepository.GetById(id, true, ct);
+        if (customer is null)
+            return NotFound();
+
+        var promoCodes = await promoCodeRepository.GetByRangeId(customer.CustomerPromoCodes.Select(c => c.Id).ToArray());
+
+        return Ok(CustomersMapper.ToCustomerResponse(customer, promoCodes));
     }
 
     /// <summary>
@@ -37,7 +50,12 @@ public class CustomersController : BaseController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<CustomerShortResponse>> Create([FromBody] CustomerCreateRequest request, CancellationToken ct)
     {
-        throw new NotImplementedException();
+
+        var preferences = new List<Preference>(await GetPreferences(request.PreferenceIds));
+        var customer = CustomersMapper.ToCustomer(request, preferences);
+        await customerRepository.Add(customer, ct);
+
+        return CreatedAtAction(nameof(Create), new { id = customer.Id }, customer);
     }
 
     /// <summary>
@@ -52,7 +70,26 @@ public class CustomersController : BaseController
         [FromBody] CustomerUpdateRequest request,
         CancellationToken ct)
     {
-        throw new NotImplementedException();
+        var customer = await customerRepository.GetById(id, ct: ct);
+        if (customer is null)
+            return NotFound();
+
+
+        customer.FirstName = request.FirstName;
+        customer.LastName = request.LastName;
+        customer.Email = request.Email;
+        customer.Preferences = new List<Preference>(await GetPreferences(request.PreferenceIds));
+
+        try
+        {
+            await customerRepository.Update(customer, ct);
+        }
+        catch (EntityNotFoundException)
+        {
+            return NotFound();
+        }
+
+        return Ok(CustomersMapper.ToCustomerShortResponse(customer));
     }
 
     /// <summary>
@@ -63,6 +100,21 @@ public class CustomersController : BaseController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
-        throw new NotImplementedException();
+        try
+        {
+            await customerRepository.Delete(id, ct);
+        }
+        catch (EntityNotFoundException)
+        {
+            return NotFound();
+        }
+
+        return NoContent();
+    }
+
+
+    private async Task<ICollection<Preference>> GetPreferences(Guid[] ids)
+    {
+        return new List<Preference>(await preferenceRepository.GetByRangeId(ids));
     }
 }

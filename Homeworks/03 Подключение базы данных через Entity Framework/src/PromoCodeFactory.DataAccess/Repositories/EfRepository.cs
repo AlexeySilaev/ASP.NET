@@ -1,6 +1,7 @@
-using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore;
 using PromoCodeFactory.Core.Abstractions.Repositories;
 using PromoCodeFactory.Core.Domain;
+using System.Linq.Expressions;
 
 namespace PromoCodeFactory.DataAccess.Repositories;
 
@@ -8,39 +9,55 @@ internal class EfRepository<T>(PromoCodeFactoryDbContext context) : IRepository<
 {
     protected virtual IQueryable<T> ApplyIncludes(IQueryable<T> query) => query;
 
-    public Task Add(T entity, CancellationToken ct)
+    public async Task Add(T entity, CancellationToken ct)
     {
-        throw new NotImplementedException();
+        await context.Set<T>().AddAsync(entity, ct);
+        await context.SaveChangesAsync();
     }
 
-    public Task Delete(Guid id, CancellationToken ct)
+    public async Task Delete(Guid id, CancellationToken ct)
     {
-        throw new NotImplementedException();
+        T? entity = await context.Set<T>().FirstOrDefaultAsync(x => x.Id == id);
+        if (entity != null)
+        {
+            context.Set<T>().Remove(entity);
+            await context.SaveChangesAsync();
+        }
     }
 
-    public Task<IReadOnlyCollection<T>> GetAll(bool withIncludes = false, CancellationToken ct = default)
+    public async Task<IReadOnlyCollection<T>> GetAll(bool withIncludes, CancellationToken ct)
     {
-        throw new NotImplementedException();
+        return await context.Set<T>().ToListAsync();
     }
 
-    public Task<T?> GetById(Guid id, bool withIncludes = false, CancellationToken ct = default)
+    public async Task<T?> GetById(Guid id, bool withIncludes, CancellationToken ct)
     {
-        throw new NotImplementedException();
+        return await context.Set<T>().FirstOrDefaultAsync(x => x.Id == id);
     }
 
     public Task<IReadOnlyCollection<T>> GetByRangeId(IEnumerable<Guid> ids, bool withIncludes = false, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
+        var result = context.Set<T>()
+            .Where(e => ids.Contains(e.Id))
+            .ToList()
+            .AsReadOnly();
+        return Task.FromResult((IReadOnlyCollection<T>)result);
     }
 
     public Task<IReadOnlyCollection<T>> GetWhere(Expression<Func<T, bool>> predicate, bool withIncludes = false, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
+        var result = context.Set<T>()
+            .Where(predicate)
+            .ToList()
+            .AsReadOnly();
+
+        return Task.FromResult<IReadOnlyCollection<T>>(result);
     }
 
-    public Task Update(T entity, CancellationToken ct)
+    public async Task Update(T entity, CancellationToken ct)
     {
-        throw new NotImplementedException();
+        context.Set<T>().Update(entity);
+        await context.SaveChangesAsync();
     }
 
 }

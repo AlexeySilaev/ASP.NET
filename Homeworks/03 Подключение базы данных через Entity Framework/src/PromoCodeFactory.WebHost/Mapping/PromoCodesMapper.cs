@@ -17,4 +17,20 @@ public static class PromoCodesMapper
             promoCode.PartnerManager.Id,
             promoCode.Preference.Id);
     }
+
+    public static PromoCode ToPromoCode(PromoCodeCreateRequest request, Employee partnerManager, Preference preference)
+    {
+        return new PromoCode
+        {
+            Id = Guid.NewGuid(),
+            Code = request.Code,
+            ServiceInfo = request.ServiceInfo,
+            PartnerName = request.PartnerName,
+            BeginDate = request.BeginDate,
+            EndDate = request.EndDate,
+            PartnerManager = partnerManager,
+            Preference = preference
+        };
+    }
+
 }
