@@ -20,16 +20,26 @@ public static class PromoCodesMapper
 
     public static PromoCode ToPromoCode(PromoCodeCreateRequest request, Employee partnerManager, Preference preference)
     {
+        Guid promocodeId = Guid.NewGuid();
+        DateTimeOffset createdAt = DateTimeOffset.UtcNow;
         return new PromoCode
         {
-            Id = Guid.NewGuid(),
+            Id = promocodeId,
             Code = request.Code,
             ServiceInfo = request.ServiceInfo,
             PartnerName = request.PartnerName,
             BeginDate = request.BeginDate,
             EndDate = request.EndDate,
             PartnerManager = partnerManager,
-            Preference = preference
+            Preference = preference,
+            CustomerPromoCodes = preference.Customers.Select(c => new CustomerPromoCode
+            {
+                Id = Guid.NewGuid(),
+                CustomerId = c.Id,
+                PromoCodeId = promocodeId,
+                CreatedAt = createdAt,
+                AppliedAt = null
+            }).ToList()
         };
     }
 

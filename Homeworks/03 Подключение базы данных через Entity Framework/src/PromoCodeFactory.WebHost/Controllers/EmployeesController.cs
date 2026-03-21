@@ -57,7 +57,7 @@ public class EmployeesController(
         var employee = EmployeesMapper.ToEmployee(request, role);
         await employeeRepository.Add(employee, ct);
 
-        return CreatedAtAction(nameof(Create), new { id = employee.Id }, employee);
+        return CreatedAtAction(nameof(GetById), new { id = employee.Id }, employee);
     }
 
     /// <summary>

@@ -51,7 +51,7 @@ public class CustomersController(IRepository<Customer> customerRepository, IRepo
     public async Task<ActionResult<CustomerShortResponse>> Create([FromBody] CustomerCreateRequest request, CancellationToken ct)
     {
 
-        var preferences = new List<Preference>(await GetPreferences(request.PreferenceIds));
+        var preferences = await GetPreferences(request.PreferenceIds, ct);
         var customer = CustomersMapper.ToCustomer(request, preferences);
         await customerRepository.Add(customer, ct);
 
@@ -78,7 +78,7 @@ public class CustomersController(IRepository<Customer> customerRepository, IRepo
         customer.FirstName = request.FirstName;
         customer.LastName = request.LastName;
         customer.Email = request.Email;
-        customer.Preferences = new List<Preference>(await GetPreferences(request.PreferenceIds));
+        customer.Preferences = await GetPreferences(request.PreferenceIds, ct);
 
         try
         {
@@ -113,8 +113,9 @@ public class CustomersController(IRepository<Customer> customerRepository, IRepo
     }
 
 
-    private async Task<ICollection<Preference>> GetPreferences(Guid[] ids)
+    private async Task<ICollection<Preference>> GetPreferences(Guid[] ids, CancellationToken ct)
     {
-        return new List<Preference>(await preferenceRepository.GetByRangeId(ids));
+        var result = await preferenceRepository.GetByRangeId(ids, true, ct);
+        return result.ToList();
     }
 }

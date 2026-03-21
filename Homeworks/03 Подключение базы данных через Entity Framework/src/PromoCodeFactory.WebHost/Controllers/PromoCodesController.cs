@@ -47,35 +47,23 @@ public class PromoCodesController(IRepository<PromoCode> promocodesRepository, I
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<PromoCodeShortResponse>> Create(PromoCodeCreateRequest request, CancellationToken ct)
     {
-        var preference = await preferencesRepository.GetById(request.PreferenceId);
+        var preference = await preferencesRepository.GetById(request.PreferenceId, false, ct);
         if(preference == null)
             return BadRequest(new ProblemDetails { Title = "Invalid preference", Detail = $"Preference with Id {request.PreferenceId} not found." });
 
-        var employee = await employeesRepository.GetById(request.PartnerManagerId);
+        var employee = await employeesRepository.GetById(request.PartnerManagerId, true, ct);
         if (employee == null)
             return BadRequest(new ProblemDetails { Title = "Invalid employee", Detail = $"Employee with Id {request.PartnerManagerId} not found." });
 
         if (request.BeginDate > request.EndDate)
             return BadRequest(new ProblemDetails { Title = "Invalid promocode BeginDate/EndDate." });
 
+
+        // выдача промокода клиентам
         var promocode = PromoCodesMapper.ToPromoCode(request, employee, preference);
         await promocodesRepository.Add(promocode, ct);
 
-        // выдача промокода клиентам
-        DateTimeOffset createdAt = DateTimeOffset.UtcNow;
-        foreach (var customer in preference.Customers)
-        {
-            customer.CustomerPromoCodes.Add(new CustomerPromoCode
-            {
-                Id = Guid.NewGuid(),
-                CustomerId = customer.Id,
-                PromoCodeId = promocode.Id,
-                CreatedAt = createdAt,
-            });
-            await customersRepository.Update(customer, ct); // здесь накладные расходы на каждое сохрание в базе, как избежать - не знаю
-        }
-
-        return CreatedAtAction(nameof(Create), new { id = promocode.Id }, promocode);
+        return CreatedAtAction(nameof(GetById), new { id = promocode.Id }, PromoCodesMapper.ToPromoCodeShortResponse(promocode));
     }
 
     /// <summary>
