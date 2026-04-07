@@ -1,0 +1,10 @@
+То, чего не хватало для успешного выполнения docker build
+
+Добавить Dockerfile в проект PromoCodeFactory.WebHost явно, он не в текущем расположении.
+
+PS C:\Otus_Homeworks\Homeworks\05 Упаковка в docker> set-location .\src\PromoCodeFactory.WebHost
+PS C:\Otus_Homeworks\Homeworks\05 Упаковка в docker\src\PromoCodeFactory.WebHost> docker build -t webhost:1.0 ..
+
+
+Регистр ключевых слов имеет значение!
+При выполнении docker build должен быть запущен docker desktop

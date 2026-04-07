@@ -22,4 +22,19 @@
       <ProjectReference Include="..\PromoCodeFactory.DataAccess\PromoCodeFactory.DataAccess.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Content Include="..\..\..\..\.dockerignore">
+        <Link>.dockerignore</Link>
+      </Content>
+      <Content Include="..\Dockerfile">
+        <Link>Dockerfile</Link>
+      </Content>
+        <Content Include="..\..\..\..\docker-compose.yaml">
+            <Link>docker-compose.yaml</Link>
+        </Content>
+        <Content Include="Tips.txt">
+        <Link>Dockerfile</Link>
+      </Content>
+    </ItemGroup>
+
 </Project>
