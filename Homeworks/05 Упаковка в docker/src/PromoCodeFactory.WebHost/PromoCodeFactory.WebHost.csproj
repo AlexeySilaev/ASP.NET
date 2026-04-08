@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
@@ -23,13 +23,13 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Content Include="..\..\..\..\.dockerignore">
+      <Content Include="..\.dockerignore">
         <Link>.dockerignore</Link>
       </Content>
       <Content Include="..\Dockerfile">
         <Link>Dockerfile</Link>
       </Content>
-        <Content Include="..\..\..\..\docker-compose.yaml">
+        <Content Include="..\docker-compose.yaml">
             <Link>docker-compose.yaml</Link>
         </Content>
         <Content Include="Tips.txt">
