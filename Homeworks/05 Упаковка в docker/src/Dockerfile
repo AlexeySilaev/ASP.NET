@@ -1,15 +1,15 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
-COPY ["PromoCodeFactory.Core/PromoCodeFactory.Core.csproj",  "PromoCodeFactory.Core/"]
-COPY ["PromoCodeFactory.DataAccess/PromoCodeFactory.DataAccess.csproj", "PromoCodeFactory.DataAccess/"]
-COPY ["PromoCodeFactory.WebHost/PromoCodeFactory.WebHost.csproj", "PromoCodeFactory.WebHost/"]
-# юнит-тест копировать - лишнее
+COPY ["PromoCodeFactory.WebHost/PromoCodeFactory.WebHost.csproj",  "PromoCodeFactory.WebHost/"]
 
 RUN dotnet restore "PromoCodeFactory.WebHost/PromoCodeFactory.WebHost.csproj"
+
+# в этом месте добавим все остальное, считая, что от папки bin и ниже нугеты имеют место быть
+# перезапись PromoCodeFactory.WebHost пройдет быстро, и теперь все будет говото к общему билду
 COPY . .
 
 # если добавить флаг no-restore, будет ошибка, после копирования ресторим нугеты
-RUN dotnet build "PromoCodeFactory.WebHost/PromoCodeFactory.WebHost.csproj" -c RELEASE -o /app/publish
+RUN dotnet publish "PromoCodeFactory.WebHost/PromoCodeFactory.WebHost.csproj" -c RELEASE -o /app/publish
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime 
 WORKDIR /app
