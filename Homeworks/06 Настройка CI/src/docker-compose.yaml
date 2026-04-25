@@ -1,7 +1,7 @@
 services:
   promocode-factory-api:
     container_name: promocode-factory-api
-    image: ghcr.io/alexeysilaev/promocode-ci
+    image: ghcr.io/alexeysilaev/promocode-factory-api:latest
     ports:
       - "8091:8080"
     environment:
