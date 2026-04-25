@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 env:
-  IMAGE_NAME: ghcr.io/alexeysilaev/promocode-factory-api:latest
+  IMAGE_NAME: ghcr.io/alexeysilaev/promocode-factory-api
 
 jobs:
   build-test-push:
