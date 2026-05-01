@@ -1,16 +1,25 @@
 ﻿import React from 'react'
+import { v4 as uuidv4 } from 'uuid';
 
-const CatFactList: React.FC = () => {
+function CatFactList(list) {
+    console.log(list);
 
     return (
+
         <div style={{
-            background: '#f0f0f0',
+            background: 'lightgreen',
             padding: '10px',
             borderRadius: '5px',
             fontSize: '12px',
             zIndex: 9999
         }}>
-            <h2>Здесь будут факты</h2>
+            <div>
+                {list.map(item => (
+                 <h2 key={uuidv4()}>
+                    {item.fact}
+                </h2>
+            ))}
+            </div>
         </div>
     )
 }
