@@ -38,13 +38,12 @@ namespace Pcf.GivingToCustomer.WebHost
             services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
             services.AddScoped<INotificationGateway, NotificationGateway>();
             services.AddScoped<IDbInitializer, EfDbInitializer>();
-            services.AddDbContext<DataContext>(x =>
-            {
-                //x.UseSqlite("Filename=PromocodeFactoryGivingToCustomerDb.sqlite");
-                x.UseNpgsql(Configuration.GetConnectionString("PromocodeFactoryGivingToCustomerDb"));
-                x.UseSnakeCaseNamingConvention();
-                x.UseLazyLoadingProxies();
-            });
+
+            var mongoConnectionString = Configuration.GetConnectionString("MongoDb")!;
+            services.AddDbContext<DataContext>(x => x
+                .EnableSensitiveDataLogging()
+                .UseMongoDB(mongoConnectionString, "shipping")
+             );
 
             services.AddOpenApiDocument(options =>
             {

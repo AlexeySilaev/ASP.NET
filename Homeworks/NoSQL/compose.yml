@@ -70,3 +70,13 @@ services:
       - "ConnectionStrings:PromocodeFactoryGivingToCustomerDb=Host=promocode-factory-giving-to-customer-db;Database=promocode_factory_giving_to_customer_db;Username=postgres;Password=docker"          
     depends_on: 
       - promocode-factory-giving-to-customer-db
+ 
+  mongo-giving-to-customer-db:
+    image: mongo:latest
+    container_name: mongo-giving-to-customer-db
+    #command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27018"]
+    volumes:
+      - ./docker_data/mongodb:/data/db
+    ports:
+      - "27018:27017"
+    restart: always
