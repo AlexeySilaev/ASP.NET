@@ -21,7 +21,7 @@ namespace Pcf.GivingToCustomer.DataAccess
         public DataContext(DbContextOptions<DataContext> options)
             : base(options)
         {
-
+            Database.AutoTransactionBehavior = AutoTransactionBehavior.Never;
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

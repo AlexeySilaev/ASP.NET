@@ -8,6 +8,12 @@ services:
       - 5433:5432
     environment: 
       - POSTGRES_PASSWORD=docker
+  mongo-administration-db:
+    image: mongo:8.0
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27017:27017"
   #Administration Api
   promocode-factory-administration-api:
     build: src/Pcf.Administration/
@@ -16,7 +22,8 @@ services:
     ports:
       - "8091:8080"
     environment:
-      - "ConnectionStrings:PromocodeFactoryAdministrationDb=Host=promocode-factory-administration-db;Database=promocode_factory_administration_db;Username=postgres;Password=docker"          
+      - "ConnectionStrings:PromocodeFactoryAdministrationDb=Host=promocode-factory-administration-db;Database=promocode_factory_administration_db;Username=postgres;Password=docker" 
+      - POSTGRES_PASSWORD=docker
     depends_on: 
       - promocode-factory-administration-db
 
@@ -63,3 +70,13 @@ services:
       - "ConnectionStrings:PromocodeFactoryGivingToCustomerDb=Host=promocode-factory-giving-to-customer-db;Database=promocode_factory_giving_to_customer_db;Username=postgres;Password=docker"          
     depends_on: 
       - promocode-factory-giving-to-customer-db
+ 
+  mongo-giving-to-customer-db:
+    image: mongo:latest
+    container_name: mongo-giving-to-customer-db
+    #command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27018"]
+    volumes:
+      - ./docker_data/mongodb:/data/db
+    ports:
+      - "27018:27017"
+    restart: always

@@ -1,5 +1,5 @@
 # Prepare the build stage
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /app
 
 # Copy the solution file and project files, then restore dependencies
@@ -14,7 +14,7 @@ WORKDIR /app/aspnetapp
 RUN dotnet publish -c Release -o out
 
 # Use the .NET 8 runtime for the final stage
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/aspnetapp/out ./
 EXPOSE 8080
