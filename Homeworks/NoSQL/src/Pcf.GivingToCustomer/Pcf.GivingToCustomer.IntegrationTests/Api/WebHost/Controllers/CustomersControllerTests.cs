@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -58,7 +59,7 @@ namespace Pcf.GivingToCustomer.IntegrationTests.Api.WebHost.Controllers
 
             //Теперь получаем объект, который должен было создан, если REST правильно написан, то в Location будет
             //готовый URL для получения нового объекта
-            var actualContent = await client.GetStringAsync(response.Headers.Location);
+            var actualContent = await client.GetStringAsync(response.Headers.Location, CancellationToken.None);
             var actual = JsonConvert.DeserializeObject<CustomerResponse>(actualContent);
 
             actual.Email.Should().Be(request.Email);
@@ -110,14 +111,14 @@ namespace Pcf.GivingToCustomer.IntegrationTests.Api.WebHost.Controllers
             };
 
             //Act
-            var response = await client.GetAsync($"/api/v1/customers/{expected.Id}");
+            var response = await client.GetAsync($"/api/v1/customers/{expected.Id}", CancellationToken.None);
          
             //Assert
             response.IsSuccessStatusCode.Should().BeTrue();
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             
             var actual = JsonConvert.DeserializeObject<CustomerResponse>(
-                await response.Content.ReadAsStringAsync());
+                await response.Content.ReadAsStringAsync(CancellationToken.None));
 
             actual.Should().BeEquivalentTo(expected);
         }
