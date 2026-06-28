@@ -1,17 +1,20 @@
-using System;
+using MassTransit;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Configuration;
-using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
-using Pcf.GivingToCustomer.Core.Abstractions.Repositories;
+using Pcf.GivingToCustomer.Core;
 using Pcf.GivingToCustomer.Core.Abstractions.Gateways;
-using Pcf.GivingToCustomer.DataAccess.Data;
+using Pcf.GivingToCustomer.Core.Abstractions.Repositories;
 using Pcf.GivingToCustomer.DataAccess;
+using Pcf.GivingToCustomer.DataAccess.Data;
 using Pcf.GivingToCustomer.DataAccess.Repositories;
 using Pcf.GivingToCustomer.Integration;
+using Pcf.GivingToCustomer.WebHost.MassTransit;
+using System;
+using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace Pcf.GivingToCustomer.WebHost
 {
@@ -33,12 +36,36 @@ namespace Pcf.GivingToCustomer.WebHost
             services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
             services.AddScoped<INotificationGateway, NotificationGateway>();
             services.AddScoped<IDbInitializer, EfDbInitializer>();
+            services.AddScoped(typeof(PromoCodeEngine));
             services.AddDbContext<DataContext>(x =>
             {
                 //x.UseSqlite("Filename=PromocodeFactoryGivingToCustomerDb.sqlite");
                 x.UseNpgsql(Configuration.GetConnectionString("PromocodeFactoryGivingToCustomerDb"));
                 x.UseSnakeCaseNamingConvention();
                 x.UseLazyLoadingProxies();
+            });
+
+            services.AddMassTransit(x =>
+            {
+                // Add consumers
+                x.AddConsumer<PromocodeConsumer>();
+
+                // Configure RabbitMQ
+                x.UsingRabbitMq((context, cfg) =>
+                {
+                    cfg.Host("localhost", 5672, "/", h =>
+                    {
+                        h.Username("guest");
+                        h.Password("guest");
+                    });
+
+                    cfg.ConfigureEndpoints(context);
+
+                    cfg.ReceiveEndpoint("promocode-queue", e =>
+                    {
+                        e.ConfigureConsumer<PromocodeConsumer>(context);
+                    });
+                });
             });
 
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);

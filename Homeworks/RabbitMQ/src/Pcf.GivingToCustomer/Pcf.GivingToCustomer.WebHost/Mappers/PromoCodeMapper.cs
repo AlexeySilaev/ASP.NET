@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Pcf.GivingToCustomer.Core.Domain;
+using Pcf.GivingToCustomer.WebHost.Models;
+using SharedModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Pcf.GivingToCustomer.Core.Domain;
-using Pcf.GivingToCustomer.WebHost.Models;
 
 namespace Pcf.GivingToCustomer.WebHost.Mappers
 {
@@ -38,6 +39,40 @@ namespace Pcf.GivingToCustomer.WebHost.Mappers
                     PromoCode = promocode
                 });
             };
+
+            return promocode;
+        }
+
+        public static PromoCode MapFromModel(IGivePromoCodeToCustomerDto dto, Preference preference, IEnumerable<Customer> customers)
+        {
+
+            var promocode = new PromoCode();
+            promocode.Id = dto.PromoCodeId;
+
+            promocode.PartnerId = dto.PartnerId;
+            promocode.Code = dto.PromoCode;
+            promocode.ServiceInfo = dto.ServiceInfo;
+
+            promocode.BeginDate = DateTime.Parse(dto.BeginDate);
+            promocode.EndDate = DateTime.Parse(dto.EndDate);
+
+            promocode.Preference = preference;
+            promocode.PreferenceId = preference.Id;
+
+            promocode.Customers = new List<PromoCodeCustomer>();
+
+            foreach (var item in customers)
+            {
+                promocode.Customers.Add(new PromoCodeCustomer()
+                {
+
+                    CustomerId = item.Id,
+                    Customer = item,
+                    PromoCodeId = promocode.Id,
+                    PromoCode = promocode
+                });
+            }
+            ;
 
             return promocode;
         }

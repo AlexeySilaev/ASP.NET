@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.10.34916.146
+# Visual Studio Version 18
+VisualStudioVersion = 18.7.11903.348 stable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Pcf.Administration", "Pcf.Administration", "{92A39EB2-4342-42A8-A30F-36DB3B5D2C95}"
 EndProject
@@ -36,6 +36,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pcf.ReceivingFromPartner.WebHost", "Pcf.ReceivingFromPartner\Pcf.ReceivingFromPartner.WebHost\Pcf.ReceivingFromPartner.WebHost.csproj", "{3C4538FC-B200-4DC1-B278-DE43800B0BE3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pcf.Administration.IntegrationTests", "Pcf.Administration\Pcf.Administration.IntegrationTests\Pcf.Administration.IntegrationTests.csproj", "{38F1FFB6-5EBF-4EDF-B74E-AF29B0F1ABF7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedModels", "SharedModels\SharedModels.csproj", "{A8885DC6-468B-419F-A463-4FB06555677B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -99,6 +101,10 @@ Global
 		{38F1FFB6-5EBF-4EDF-B74E-AF29B0F1ABF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{38F1FFB6-5EBF-4EDF-B74E-AF29B0F1ABF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{38F1FFB6-5EBF-4EDF-B74E-AF29B0F1ABF7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8885DC6-468B-419F-A463-4FB06555677B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8885DC6-468B-419F-A463-4FB06555677B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8885DC6-468B-419F-A463-4FB06555677B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8885DC6-468B-419F-A463-4FB06555677B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
