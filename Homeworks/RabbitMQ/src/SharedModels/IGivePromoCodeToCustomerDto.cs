@@ -1,9 +1,6 @@
-﻿using SharedModels;
-using System;
-
-namespace Pcf.ReceivingFromPartner.Integration.Dto
+﻿namespace SharedModels
 {
-    public class GivePromoCodeToCustomerDto : IGivePromoCodeToCustomerDto
+    public interface IGivePromoCodeToCustomerDto : ISupportPartnerManagerId
     {
         public string ServiceInfo { get; set; }
 
@@ -19,6 +16,5 @@ namespace Pcf.ReceivingFromPartner.Integration.Dto
 
         public string EndDate { get; set; }
 
-        public Guid? PartnerManagerId { get; set; }
     }
 }

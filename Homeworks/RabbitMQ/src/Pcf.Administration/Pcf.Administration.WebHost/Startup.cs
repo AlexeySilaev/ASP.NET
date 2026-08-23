@@ -1,15 +1,18 @@
+using MassTransit;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Configuration;
-using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
-using Pcf.Administration.DataAccess;
-using Pcf.Administration.DataAccess.Repositories;
-using Pcf.Administration.DataAccess.Data;
+using Pcf.Administration.Core;
 using Pcf.Administration.Core.Abstractions.Repositories;
+using Pcf.Administration.DataAccess;
+using Pcf.Administration.DataAccess.Data;
+using Pcf.Administration.DataAccess.Repositories;
+using Pcf.Administration.WebHost.MassTransit;
 using System;
+using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace Pcf.Administration.WebHost
 {
@@ -30,6 +33,7 @@ namespace Pcf.Administration.WebHost
                 x.SuppressAsyncSuffixInActionNames = false);
             services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
             services.AddScoped<IDbInitializer, EfDbInitializer>();
+            services.AddScoped(typeof(EmployeePromocodeEngine));
             services.AddDbContext<DataContext>(x =>
             {
                 //x.UseSqlite("Filename=PromocodeFactoryAdministrationDb.sqlite");
@@ -37,6 +41,29 @@ namespace Pcf.Administration.WebHost
                 x.UseSnakeCaseNamingConvention();
                 x.UseLazyLoadingProxies();
             });
+            services.AddMassTransit(x =>
+            {
+                // Add consumers
+                x.AddConsumer<EmployeePromocodeConsumer>();
+
+                // Configure RabbitMQ
+                x.UsingRabbitMq((context, cfg) =>
+                {
+                    cfg.Host("localhost", 5672, "/", h =>
+                     {
+                         h.Username("guest");
+                         h.Password("guest");
+                     });
+
+                    cfg.ConfigureEndpoints(context);
+
+                    cfg.ReceiveEndpoint("employee-promocode-queue", e =>
+                    {
+                        e.ConfigureConsumer<EmployeePromocodeConsumer>(context);
+                    });
+                });
+            });
+
 
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 

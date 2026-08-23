@@ -17,7 +17,7 @@ namespace Pcf.Administration.IntegrationTests.Components.WebHost.Controllers
         public EmployeesControllerTests(EfDatabaseFixture efDatabaseFixture)
         {
             _employeesRepository = new EfRepository<Employee>(efDatabaseFixture.DbContext);
-            _employeesController = new EmployeesController(_employeesRepository);
+            _employeesController = new EmployeesController(_employeesRepository, new Core.EmployeePromocodeEngine(_employeesRepository));
         }
 
         [Fact]
