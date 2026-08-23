@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Pcf.GivingToCustomer.Core.Domain;
+using Pcf.GivingToCustomer.WebHost.gRPC.Contracts;
+using Pcf.GivingToCustomer.WebHost.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Pcf.GivingToCustomer.Core.Domain;
-using Pcf.GivingToCustomer.WebHost.Models;
 
 namespace Pcf.GivingToCustomer.WebHost.Mappers
 {
@@ -30,6 +30,23 @@ namespace Pcf.GivingToCustomer.WebHost.Mappers
             }).ToList();
             
             return customer;
+        }
+
+        public static CustomerReply MapFromCustomer(Customer customer)
+        {
+            CustomerReply result = new CustomerReply
+            {
+                Id = customer.Id.ToString(),
+                FirstName = customer.FirstName,
+                LastName = customer.LastName,
+                Email = customer.Email
+            };
+            result.Preferences.AddRange(customer.Preferences.Select(p => new PreferenceReply
+            {
+                Id = p.PreferenceId.ToString(),
+                Name = p.Preference.Name
+            }));
+            return result;
         }
     }
 }

@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Pcf.GivingToCustomer.Core.Abstractions.Repositories;
 using Pcf.GivingToCustomer.Core.Domain;
-using Pcf.GivingToCustomer.WebHost.Mappers;
 using Pcf.GivingToCustomer.WebHost.Models;
 
 namespace Pcf.GivingToCustomer.WebHost.Controllers
@@ -18,14 +16,11 @@ namespace Pcf.GivingToCustomer.WebHost.Controllers
     public class CustomersController
         : ControllerBase
     {
-        private readonly IRepository<Customer> _customerRepository;
-        private readonly IRepository<Preference> _preferenceRepository;
+        private readonly CustomerService _customerService;
 
-        public CustomersController(IRepository<Customer> customerRepository, 
-            IRepository<Preference> preferenceRepository)
+        public CustomersController(CustomerService customerService)
         {
-            _customerRepository = customerRepository;
-            _preferenceRepository = preferenceRepository;
+            _customerService = customerService;
         }
         
         /// <summary>
@@ -35,7 +30,7 @@ namespace Pcf.GivingToCustomer.WebHost.Controllers
         [HttpGet]
         public async Task<ActionResult<List<CustomerShortResponse>>> GetCustomersAsync()
         {
-            var customers =  await _customerRepository.GetAllAsync();
+            var customers =  await _customerService.GetAllAsync();
 
             var response = customers.Select(x => new CustomerShortResponse()
             {
@@ -56,7 +51,7 @@ namespace Pcf.GivingToCustomer.WebHost.Controllers
         [HttpGet("{id:guid}")]
         public async Task<ActionResult<CustomerResponse>> GetCustomerAsync(Guid id)
         {
-            var customer =  await _customerRepository.GetByIdAsync(id);
+            var customer =  await _customerService.GetByIdAsync(id);
 
             var response = new CustomerResponse(customer);
 
@@ -70,14 +65,7 @@ namespace Pcf.GivingToCustomer.WebHost.Controllers
         [HttpPost]
         public async Task<ActionResult<CustomerResponse>> CreateCustomerAsync(CreateOrEditCustomerRequest request)
         {
-            //Получаем предпочтения из бд и сохраняем большой объект
-            var preferences = await _preferenceRepository
-                .GetRangeByIdsAsync(request.PreferenceIds);
-
-            Customer customer = CustomerMapper.MapFromModel(request, preferences);
-            
-            await _customerRepository.AddAsync(customer);
-
+            Customer customer = await _customerService.AddAsync(request);
             return CreatedAtAction(nameof(GetCustomerAsync), new {id = customer.Id}, customer.Id);
         }
         
@@ -89,17 +77,10 @@ namespace Pcf.GivingToCustomer.WebHost.Controllers
         [HttpPut("{id:guid}")]
         public async Task<IActionResult> EditCustomersAsync(Guid id, CreateOrEditCustomerRequest request)
         {
-            var customer = await _customerRepository.GetByIdAsync(id);
+            bool result = await _customerService.UpdateAsync(id, request);
             
-            if (customer == null)
+            if (result == false)
                 return NotFound();
-            
-            var preferences = await _preferenceRepository.GetRangeByIdsAsync(request.PreferenceIds);
-            
-            CustomerMapper.MapFromModel(request, preferences, customer);
-
-            await _customerRepository.UpdateAsync(customer);
-
             return NoContent();
         }
         
@@ -110,12 +91,10 @@ namespace Pcf.GivingToCustomer.WebHost.Controllers
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> DeleteCustomerAsync(Guid id)
         {
-            var customer = await _customerRepository.GetByIdAsync(id);
+            bool result = await _customerService.DeleteAsync(id);
             
-            if (customer == null)
+            if (result == false)
                 return NotFound();
-
-            await _customerRepository.DeleteAsync(customer);
 
             return NoContent();
         }
